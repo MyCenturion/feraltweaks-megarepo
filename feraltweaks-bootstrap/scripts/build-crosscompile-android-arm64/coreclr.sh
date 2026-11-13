@@ -68,8 +68,9 @@ for path in $(wget -qO- https://packages.termux.dev/termux-main-21/dists/stable/
     grep -A15 "Package: \(${__AndroidPackages// /\\|}\)" | grep -v "static\|tool" | grep Filename); do
 
     if [[ "$path" != "Filename:" ]]; then
-        echo "Working on: $path"
-        wget -qO- https://packages.termux.dev/termux-main-21/$path | dpkg -x - "$TMP"
+        wget -O dl.deb https://packages.termux.dev/termux-main-21/$path
+        dpkg -x dl.deb "$TMP"
+        rm dl.deb
     fi
 done
 cp -Rv "$TMP/data/data/com.termux/files/usr/"* "$TOOLCHAIN_DIR/sysroot/usr/"
