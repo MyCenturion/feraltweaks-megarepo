@@ -13,7 +13,7 @@ set -e
 # Properties
 monorepo="https://github.com/dotnet/runtime"
 monobranch="release/8.0"
-ndkver="r26d"
+ndkver="r25c"
 apilevel=26
 
 # Download .NET runtime
