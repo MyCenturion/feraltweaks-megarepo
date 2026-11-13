@@ -224,11 +224,13 @@ namespace feraltweaks.Patches.AssemblyCSharp
                         if (assets.Any(t => Path.GetFileNameWithoutExtension(t).ToLower() == "ft_multibundlehelper"))
                         {
                             TextAsset helperAs = null;
-                            UnityEngine.Object[] asl = sourceBundle.LoadAllAssets();
-                            foreach (UnityEngine.Object assetObj in asl)
+                            Il2CppSystem.Type textAssetType = Il2CppType.Of<TextAsset>();
+                            foreach (string name in assets)
                             {
-                                TextAsset tAs = assetObj.TryCast<TextAsset>();
-                                if (tAs != null && Path.GetFileNameWithoutExtension(tAs.name.ToLower()) == "ft_multibundlehelper")
+                                if (Path.GetFileNameWithoutExtension(name).ToLower() != "ft_multibundlehelper")
+                                    continue;
+                                TextAsset tAs = sourceBundle.LoadAsset(name, textAssetType).TryCast<TextAsset>();
+                                if (tAs != null)
                                 {
                                     helperAs = tAs;
                                     break;
@@ -320,7 +322,20 @@ namespace feraltweaks.Patches.AssemblyCSharp
                                 // Find source asset
                                 UnityEngine.Object assetInst = sourceBundle.LoadAsset(sourceAssetName, type);
                                 if (assetInst == null)
-                                    assetInst = sourceBundle.LoadAllAssets().Where(t => t.name.ToLower() == sourceAssetName.ToLower() && type.IsAssignableFrom(t.GetIl2CppType())).FirstOrDefault();
+                                {
+                                    // Find the asset by iterating the bundle's asset names
+                                    foreach (string name in sourceBundle.GetAllAssetNames())
+                                    {
+                                        if (Path.GetFileNameWithoutExtension(name).ToLower() != sourceAssetName.ToLower())
+                                            continue;
+                                        UnityEngine.Object obj = sourceBundle.LoadAsset(name, type);
+                                        if (obj != null && type.IsAssignableFrom(obj.GetIl2CppType()))
+                                        {
+                                            assetInst = obj;
+                                            break;
+                                        }
+                                    }
+                                }
                                 if (assetInst == null)
                                 {
                                     // Error
@@ -403,22 +418,6 @@ namespace feraltweaks.Patches.AssemblyCSharp
         public static void GetAllAssetNames(AssetBundle __instance, ref Il2CppStringArray __result)
         {
             // Inject assets
-            // TODO: support
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(AssetBundle), "LoadAllAssets", new Type[] { typeof(Il2CppSystem.Type) })]
-        public static void LoadAllAssets(AssetBundle __instance, Il2CppSystem.Type type, ref Il2CppReferenceArray<UnityEngine.Object> __result)
-        {
-            // Inject assets
-            // TODO: support
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(AssetBundle), "LoadAllAssetsAsync", new Type[] { typeof(Il2CppSystem.Type) })]
-        public static void LoadAllAssetsAsync(AssetBundle __instance, Type type, ref AssetBundleRequest __result)
-        {
-            // Inject assets into result
             // TODO: support
         }
 
